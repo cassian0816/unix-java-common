@@ -1,2 +1,4 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+exchange.antx.common.secret.AwsSmEnvPostProcessor
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  exchange.antx.common.autoconfigure.GrpcAutoConfiguration
+exchange.antx.common.autoconfigure.GrpcAutoConfiguration
