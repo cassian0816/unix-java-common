@@ -12,12 +12,6 @@
     </parent>
 
     <dependencies>
-        <!-- antx -->
-        <dependency>
-            <groupId>exchange.antx</groupId>
-            <artifactId>antx-proto</artifactId>
-        </dependency>
-
         <!-- tools -->
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -43,26 +37,6 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>secretsmanager</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>sts</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.web3j</groupId>
-            <artifactId>core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.web3j</groupId>
-            <artifactId>crypto</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.bitcoinj</groupId>
-            <artifactId>bitcoinj-core</artifactId>
         </dependency>
 
         <!-- springboot -->
@@ -96,21 +70,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>central</id>
-            <url>https://repo1.maven.org/maven2</url>
-        </repository>
-        <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/antxprotocol/maven-repository</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 </project>
