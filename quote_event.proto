@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package antx.server.quote;
+
+import "antx/chain/price/price.proto";
+import "antx/server/quote/quote_type.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "QuoteEventProto";
+option java_package = "exchange.antx.proto.server.quote";
+
+// 最新成交Event
+message TicketEvent {
+  repeated Ticket ticket = 1;
+}
+
+// 24小时行情Event
+message TickerEvent {
+  Ticker ticker = 1;
+}
+
+// 盘口深度Event
+message DepthEvent {
+  repeated Depth depth = 1; // 深度
+  DepthType depth_type = 2; // 快照或者增量
+}
+
+// 最优挂单Event
+message BookTickerEvent {
+  BookTicker book_ticker = 1;
+}
+
+// K线Event
+message KlineEvent {
+  repeated Kline kline = 1; // k线列表
+  chain.price.PriceType price_type = 2; // k线价格类型
+  bool finished = 3; // K线是否结束的标志（如果为false，表示k线没有结束）
+}
+
+// 资金费Event
+message FundingEvent {
+  oneof funding_type {
+    FundingRate funding_rate = 1;
+    FundingFee funding_fee = 2;
+  }
+}
+
+// 价格Event
+message PriceEvent {
+  Price price = 1;
+}
+
+message QuoteEvent {
+  uint64 event_id = 1;
+  uint64 exchange_id = 2;
+
+  oneof event_type {
+    TicketEvent ticket_event = 11;
+    TickerEvent ticker_event = 12;
+    DepthEvent depth_event = 13;
+    BookTickerEvent book_ticker_event = 14;
+    KlineEvent kline_event = 15;
+    FundingEvent funding_event = 16;
+    PriceEvent price_event = 17;
+  }
+}

@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package antx.server.quote;
+
+import "antx/chain/price/price.proto";
+import "antx/server/quote/quote_type.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "QuoteRpcProto";
+option java_package = "exchange.antx.proto.server.quote";
+
+message GetDepthRequest {
+  uint64 exchange_id = 1;
+  uint32 level = 2; // 深度档位
+}
+
+message GetDepthResponse {
+  repeated quote.Depth depth = 1;
+}
+
+message GetKlineRequest {
+  uint64 exchange_id = 1; // 交易ID
+  chain.price.PriceType price_type = 2; // K线价格类型
+  KlineType kline_type = 3; // K线类型
+  uint32 count = 4; // 查询条数，默认100条
+}
+
+message GetKlineResponse {
+  repeated Kline kline = 1;
+}
+
+message GetHistoryKlinePageRequest {
+  uint64 exchange_id = 1; // 交易ID
+  quote.KlineType kline_type = 2; // K线类型
+  chain.price.PriceType price_type = 3; // K线的价格类型
+  uint32 size = 4; // 获取数量。必须大于0且小于等于1000。
+  string offset_data = 5; // 翻页获取偏移。如果不填或者为空串，则获取第一页
+
+  int64 filter_begin_kline_time_inclusive = 11; // 开始时间, 不填代表获取最老的数据
+  int64 filter_end_kline_time_exclusive = 12; // 结束时间，不填代表获取最新的数据
+}
+
+message GetHistoryKlinePageResponse {
+  repeated quote.Kline kline = 1; //按时间倒序排列
+  string next_page_offset_data = 2; // 获取下一页偏移。如果没有下一页数据，则为空串。
+}
+
+message GetTickerRequest {
+  repeated uint64 exchange_id = 1;
+}
+
+message GetTickerResponse {
+  repeated Ticker ticker = 1;
+}
+
+message GetBookTickerRequest {
+  repeated uint64 exchange_id = 1;
+}
+
+message GetBookTickerResponse {
+  repeated BookTicker book_ticker = 1;
+}
+
+message GetTicketRequest {
+  uint64 exchange_id = 1; // 交易ID
+  int32 count = 2; // 查询条数，默认100条，最大1000条
+}
+
+message GetTicketResponse {
+  repeated Ticket ticket = 1;
+}
+
+message GetOpenInterestRequest {
+  repeated uint64 exchange_id = 1;
+}
+
+message GetOpenInterestResponse {
+  repeated OpenInterest open_interest = 1;
+}
+
+message GetLastPriceRequest {
+  repeated uint64 exchange_id = 1;
+}
+
+message GetLastPriceResponse {
+  repeated LastPrice last_price = 1;
+}
+
+message GetFundingRatePageRequest {
+  uint64 exchange_id = 1; // 交易id
+  uint32 size = 2; // 获取数量。必须大于0且小于等于100。
+  string offset_data = 3; // 翻页获取偏移。如果不填或者为空串，则获取第一页
+
+  bool filter_settlement_funding_rate = 4; // true则只查询结算资金费率(每8小时资金费率结算一次,每分钟计算一个预测资金费率)
+  uint64 filter_begin_time_inclusive = 5; // 开始时间, 不填代表获取最老的数据
+  uint64 filter_end_time_exclusive = 6; // 结束时间，不填代表获取最新的数据
+}
+
+// 根据合约id分页查询资金费率历史-相应
+message GetFundingRatePageResponse {
+  repeated FundingRate funding_rate = 1;
+  string next_page_offset_data = 2; // 获取下一页偏移。如果没有下一页数据，则为空串。
+}
+
+// 行情服务
+service QuoteService {
+  // 查询盘口深度
+  rpc GetDepth(GetDepthRequest) returns (GetDepthResponse);
+
+  // 查询K线
+  rpc GetKline(GetKlineRequest) returns (GetKlineResponse);
+
+  // 分页查询历史k线
+  rpc GetHistoryKlinePage(GetHistoryKlinePageRequest) returns (GetHistoryKlinePageResponse);
+
+  // 查询24小时行情
+  rpc GetTicker(GetTickerRequest) returns (GetTickerResponse);
+
+  // 查询最优挂单
+  rpc GetBookTicker(GetBookTickerRequest) returns (GetBookTickerResponse);
+
+  // 查询成交
+  rpc GetTicket(GetTicketRequest) returns (GetTicketResponse);
+
+  // 查询当前的未平仓持仓量
+  rpc GetOpenInterest(GetOpenInterestRequest) returns (GetOpenInterestResponse);
+
+  // 根据交易id分页查询资金费率历史
+  rpc GetFundingRatePage(GetFundingRatePageRequest) returns (GetFundingRatePageResponse);
+}

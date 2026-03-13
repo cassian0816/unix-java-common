@@ -1,0 +1,179 @@
+syntax = "proto3";
+
+package antx.server.quote;
+
+import "antx/chain/price/price.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "QuoteTypeProto";
+option java_package = "exchange.antx.proto.server.quote";
+
+// K线类型
+enum KlineType {
+  UNKNOWN_KLINE_TYPE = 0;
+
+  MINUTE_1 = 1;
+  MINUTE_5 = 2;
+  MINUTE_15 = 3;
+  MINUTE_30 = 4;
+  HOUR_1 = 11;
+  HOUR_2 = 12;
+  HOUR_4 = 13;
+  HOUR_6 = 14;
+  HOUR_8 = 15;
+  HOUR_12 = 16;
+  DAY_1 = 21;
+  WEEK_1 = 31;
+  MONTH_1 = 41;
+}
+
+// 盘口深度类型
+enum DepthType {
+  UNKNOWN_DEPTH_TYPE = 0;
+  SNAPSHOT = 1; // 全量快照
+  CHANGED = 2; // 增量变化
+}
+
+// 成交
+message Ticket {
+  string ticket_id = 1; // 成交ID
+  uint64 exchange_id = 2; // 交易ID
+  uint64 time = 3; // 成交时间
+  string price = 4; // 成交价格
+  string size = 5; // 成交数量
+  string value = 6; // 成交额
+
+  uint64 taker_order_id = 10; // Taker订单ID
+  uint64 maker_order_id = 11; // Maker订单ID
+  uint64 taker_account_id = 12; // Taker账户ID
+  uint64 maker_account_id = 13; // Maker账户ID
+
+  bool is_best_match = 20; // 是否完全匹配
+  bool is_buyer_maker = 21; // 内外盘标志
+
+  string tx_hash = 22;
+}
+
+// K线
+message Kline {
+  uint64 kline_id = 1; // K线ID
+  uint64 exchange_id = 2; // 交易ID
+  KlineType kline_type = 3; // K线类型
+  chain.price.PriceType price_type = 4; // K线的价格类型
+  uint64 kline_time = 5; // K线时间
+  uint64 trades = 11; // 成交笔数
+  string size = 12; // 成交量
+  string value = 13; // 成交额
+  string high = 21; // 最高价
+  string low = 22; // 最低价
+  string open = 23; // 开盘价
+  string close = 24; // 收盘价
+  string maker_buy_size = 31; // Maker买入成交量
+  string maker_buy_value = 32; // Maker买入成交额
+}
+
+// 最近24小时行情
+message Ticker {
+  uint64 exchange_id = 2; // 交易ID
+  string price_change = 4; // 价格涨跌幅
+  string price_change_percent = 5; // 价格涨跌幅百分比
+  uint64 trades = 11; // 24小时成交笔数
+  string size = 12; // 24小时成交量
+  string value = 13; // 24小时成交额
+  string high = 21; // 24小时最高价
+  string low = 22; // 24小时最低价
+  string open = 23; // 24小时内开盘价
+  string close = 24; // 24小时内收盘价
+  uint64 high_time = 31; // 24小时最高价时间
+  uint64 low_time = 32; // 24小时最低价时间
+  uint64 start_time = 33; // 24小时行情开始时间
+  uint64 end_time = 34; // 24小时行情结束时间
+  string last_price = 35; // 最新成交价
+  string mark_price = 36; // 当前标记价格
+  string index_price = 37; // 当前指数价格
+  string oracle_price = 38; // 当前Oracle价格
+  string open_interest = 39; // 未平仓持仓量
+  string funding_rate = 40; // 当前已经结算的资金费率
+  uint64 funding_time = 41; // 资金费率结算时间
+  uint64 next_funding_time = 42; // 下次资金费率结算时间
+}
+
+message BookOrder {
+  string price = 1; // 价格
+  string size = 2; // 数量（当DepthType为CHANGED时，size为0表示此档价格需要删除）
+}
+
+// 盘口深度
+message Depth {
+  uint64 exchange_id = 1; // 交易ID
+  uint32 level = 2; // 深度档位
+  sint32 scale = 3; // 价格精度（正数表示小数位，负数表示整数位）
+  uint64 start_version = 4; // 开始订单薄版本号
+  uint64 end_version = 5; // 结束订单薄版本号
+  repeated BookOrder ask = 6; // ask列表 (价格从低到高)
+  repeated BookOrder bid = 7; // bid列表（价格从高到低）
+  DepthType depth_type = 8; // 盘口深度类型
+}
+
+// 最优挂单（买一卖一）
+message BookTicker {
+  uint64 exchange_id = 1;
+  uint64 time = 2;
+  string best_ask_price = 3;
+  string best_ask_size = 4;
+  string best_bid_price = 5;
+  string best_bid_size = 6;
+}
+
+// 未平仓持仓量
+message OpenInterest {
+  uint64 exchange_id = 1;
+  uint64 time = 2;
+  string size = 3;
+}
+
+// 最新成交价
+message LastPrice {
+  uint64 exchange_id = 1;
+  uint64 time = 2;
+  string last_price = 3;
+}
+
+// 资金费率
+message FundingRate {
+  uint64 exchange_id = 1; // 所属交易id(必须为永续合约)
+  uint64 funding_time = 2; // 资金费率结算时间
+
+  uint64 funding_calculate_time = 11; // 费率计算时间 millisecond
+  string funding_rate = 12; // 资金费率
+  string oracle_price = 13; // 预言机价格
+  string index_price = 14; // 指数价格
+  bool is_settlement = 15; // 资金费率结算标志
+  string forecast_funding_rate = 16; // 预测资金费率
+
+  string previous_funding_rate = 21; // 上一次的资金费率
+  uint64 previous_funding_calculate_time = 22; // 上一次资金费率计算时间 millisecond
+  string premium_index = 23; // 溢价指数
+  string avg_premium_index = 24; // 平均溢价指数
+  uint64 premium_index_calculate_time = 25; // 溢价指数计算时间
+  string impact_margin_notional = 26; // 深度加权买卖价格需计算的数量
+  string impact_ask_price = 27; // 深度加权卖价
+  string impact_bid_price = 28; // 深度加权买价
+
+  string interest_rate = 31; // (配置文件字段)固定利率
+  string predicted_funding_rate = 32; // 综合利率 interestRate/频率
+  uint32 funding_rate_interval_minutes = 33; // 资金费率时间间隔 minutes
+}
+
+message FundingFee {
+  uint64 exchange_id = 1; // 所属交易id。[100001， 199999]为现货交易；[200001， 299999] 为永续合约
+  string funding_fee = 2; // 资金费用
+  uint64 funding_time = 3; // 资金费用结算时间，单位毫秒
+}
+
+message Price {
+  uint64 exchange_id = 1;
+  chain.price.PriceType price_type = 2; // 价格类型
+  string price = 3; // 价格
+  uint64 created_time = 4; // 创建时间，单位毫秒
+}
